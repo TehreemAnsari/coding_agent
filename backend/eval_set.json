@@ -1,0 +1,29 @@
+[
+  {
+    "problem": "Write a function that returns the sum of two numbers",
+    "test_cases": [
+      [[1, 2], 3],
+      [[10, 20], 30],
+      [[-5, 5], 0],
+      [[0, 0], 0]
+    ]
+  },
+  {
+    "problem": "Write a function that returns the factorial of a number",
+    "test_cases": [
+      [[0], 1],
+      [[1], 1],
+      [[5], 120],
+      [[10], 3628800]
+    ]
+  },
+  {
+    "problem": "Write a function that checks if a string is a palindrome (case-insensitive)",
+    "test_cases": [
+      [["racecar"], true],
+      [["hello"], false],
+      [["A man a plan a canal Panama"], true],
+      [[""], true]
+    ]
+  }
+]
