@@ -12,8 +12,8 @@ As per the problem, I was required to have these **Deliverables (functional requ
 | 3 | API endpoints and data persistence | Done see point 7. API endpoints and 8. Run history |
 | 4 | Frontend chat UI integration | Done see point 5. Web UI (Frontend) |
 | 5 | A [README.md](README.md) with instruction to use and proper code documentation | Done (this file is the readme) |
-| 6 | Code Quality | Done (generic SDE principles like safety, modularity, class based for extension to other LLMs) |
-| 7 | Architecture | Done see Architecture below |
+| 6 | Code Quality | Done (generic SDE principles like safety, modularity, class based for extension to other LLMs) see Project structure section onwards |
+| 7 | Architecture | Done see Architecture section below |
 
 These are covered in the below points 1-8. The readme is this file you are reading.
 ## **1. AI Code Generation** 
