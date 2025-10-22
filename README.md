@@ -73,21 +73,31 @@ So:
 ---
 
 ## **2. Automated Testing**
+Part of test runner + scorer
 
 **File:** `backend/app/runner.py`
 **Method:** `run_tests()`
 
-**Key logic:**
+**Key logic & explaination:**
 
 ```python
+def run_tests(self, problem_text: str, generated_code: str,
+              test_cases: List[Tuple[List[Any], Any]],
+              llm_trajectory=None, timeout: Optional[int] = None) -> Dict[str, Any]:
+... (full code in github runner.py, plz refer that)
+
 ok, stdout, stderr, runtime_ms = self._exec_solution(solution_path, payload, exec_timeout)
 ```
-
-Runs multiple test cases, checks equality, calculates score, and captures runtime.
-
+This function does the below important tasks:
+- It takes a problem, a generated Python solution (from 1), and a list of test cases, and returns a structured report showing which tests passed, failed, or crashed. 
+- `_make_solution_file()` writes the generated Python code (a string) to a temporary file on disk (here `os.path.join(tmpdir, "solution.py")`).
+- Iterate through each test case here `for inp, expected in test_cases:...`
+- _exec_solution() runs the generated Python file in a separate subprocess for safety (also see 3 for more details).
+- Compare with expected result
+- Record each test case result
 ---
 
-## **3. Safe Execution**
+## **3. Safety**
 
 **File:** `backend/app/runner.py`
 **Methods:**
@@ -98,13 +108,39 @@ Runs multiple test cases, checks equality, calculates score, and captures runtim
 
 **Key logic:**
 
+**Sandboxing/isolation:**
+CodeRunner has three main layers working together:
+1. Safety Layer: `_validate_code_safety()`: Blocks unsafe imports and keywords before running anything.
+2. Sandbox Layer : `_make_solution_file()`: Wraps the LLM-generated code in a controlled execution environment (a wrapper script).
+3. Subprocess Layer : `_exec_solution()` Executes that wrapper script in a separate process using subprocess.run.
+
+```python
+[ FastAPI Server / Main Process ]
+          │
+          ▼
+    run_tests()  ─────────────────────────────────────┐
+          │                                           │
+          ▼                                           │
+   _make_solution_file() writes wrapper to /tmp       │
+          │                                           │
+          ▼                                           │
+  _exec_solution()  →  subprocess.run("python /tmp/solution.py …")
+          │
+          ▼
+  [ Subprocess / Sandbox Environment ]
+       - Only stdlib imports allowed
+       - Only JSON I/O
+       - No access to filesystem / network / OS
+       - Timeout-enforced kill
+```
+These create a sandbox for automated testing and isolation.
+
+**Other security:**
 ```python
 if pattern.lower() in code_lower:
     raise RuntimeError(f"Blocked potentially unsafe code pattern: {pattern}")
 ```
-
 - Blocks imports like `os`, `subprocess`, `socket`, etc.
-- Runs each generated solution as an isolated subprocess (`tempfile + subprocess.run`)
 - Enforces timeout, catches exceptions safely.
 
 ---
@@ -284,7 +320,7 @@ The `__init__.py` files have been enhanced to provide convenient imports
 3. **Run the Application**: (See below for how to run on local)
 
 ---------------
-# Explaination of what all the files do 
+# Explaination of all the files (at a file level) 
 (this is what I updated on 22nd Oct, new files may be added in future)
 
 ## Backend Files (`/backend/`)
