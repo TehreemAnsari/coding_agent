@@ -28,8 +28,13 @@ DEFAULT_SYSTEM = (
 
 # ---------------------------------------------------------------------
 # Load prompt_template.txt if available
+# backend/app/core/llm.py
+# → ../.. → backend/
+# → backend/prompt_template.txt
 # ---------------------------------------------------------------------
-PROMPT_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "prompt_template.txt")
+# PROMPT_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "prompt_template.txt")
+PROMPT_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "prompt_template.txt")
+
 
 def _load_system_prompt() -> str:
     if os.path.exists(PROMPT_TEMPLATE_PATH):
