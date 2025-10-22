@@ -1,269 +1,191 @@
-# Initial Problem: SWE interview task
+# Code-Solver Agent
 
-Build a Mini “Code-Solver Agent” Platform (Frontend + Backend)
+This is a solution to the problem statement [given here](https://hexoai.notion.site/SWE-interview-task-28989b90df088061990ecd83214c71e9).
+This solution is a full-stack AI-powered coding problem solver that uses LLMs to generate Python solutions, executes them against test cases, and provides detailed scoring and results.
 
-## Overview
-
-Build a full-stack coding agent that:
-
-- Accepts a coding problem
-- Generates a Python solution
-- Runs test cases
-- Returns output code and pass score
-- Stores logs and results
-- Includes a simple chat-like frontend that interacts with the backend API
-
-The **backend** should also support CLI usage for direct testing.
-
-# Backend (Core API + CLI Tool)
-
-### Suggested Tech Stack
-
-- **Python**
-- **FastAPI**
-- **OpenAI SDK**
-
-The agent should be able to write, read, and execute Python scripts to solve coding problems.
-
-**Core Agent Behavior:**
-
-1. Accept a problem statement and test cases.
-2. Generate a Python solution file (`solution.py`).
-3. Execute test cases via calls (e.g. `python [solution.py](http://solution.py) --input "[1,2,3]"`). The solution.py should accept the —input and print only the output to stdout. It'll make it easy to run test cases.
-4. Compute test results:
-    - Total test cases
-    - Passed count
-    - Score = passed / total
-5. Save a detailed JSON log in `runs/run_<timestamp>.json` including:
-    - Problem text
-    - Generated code
-    - Test results
-    - Pass rate
-    - LLM trajectory / conversation history
-
-**Example Log:**
-
-```json
-{
-  "run_id": 2,
-  "problem_text": "Reverse a string",
-  "solution_code": "def reverseString(s): return s[::-1]",
-  "test_cases": [
-    {
-      "input": "['hello']",
-      "expected_output": "'olleh'",
-      "output": "'olleh'",
-      "passed": true
-    }
-  ],
-  "score": 1.0,
-  "error": null,
-  "llm_trajectory": []
-}
-```
-
-### 1. CLI Interface
-
-**Example Commands:**
-
-```bash
-# Standalone CLI (recommended)
-python backend/cli.py \
-  --problem "Write a function that returns the sum of two numbers" \
-  --test-cases '[[[1, 2], 3], [[10, 20], 30]]'
-
-# Module CLI (alternative)
-python -m app.cli \
-  --problem "Reverse a string" \
-  --test-cases '[[["hello"], "olleh"]]'
-
-# With self-reflection
-python backend/cli.py \
-  --problem "Your problem here" \
-  --test-cases '[[[inputs], expected], ...]' \
-  --reflection \
-  --retries 2
-```
-
-Accept a problem statement (`--problem`) and test cases (`--test-cases` as a JSON string).
-
-### 2. API Endpoints
-
-| Endpoint | Method | Description |
-| --- | --- | --- |
-| `/generate_solution` | POST | Solve a problem, run tests, return JSON results. Same as CLI |
-| `/results/{id}` | GET | Retrieve previous run logs |
-
-**Example Request (`/generate_solution`):**
-
-```json
-{
-  "problem": "Given two numbers, return their sum.",
-  "test_cases": [[[1,2],3]]
-}
-```
-
-**Example Response:**
-
-```json
-{
-  "id": 1,
-  "solution_code": "def add(a,b): return a+b",
-  "results": [
-    {"input": "[1,2]", "expected_output": "3", "output": "3", "passed": true}
-  ],
-  "score": 1.0,
-  "test_cases_generated": false,
-  "error": null
-}
-```
-
-## Test Case Format
-
-Each test case is represented as:
-
-```
-[[inputs], expected_output]
-
-[[arg1, arg2, arg3], expected_output]
-```
-
----
-
-## Examples
-
-### 1. Single Input
-
-**Test Case:**
-
-```python
-[[["hello"], "olleh"]]
-```
-
-**Function Signature:**
-
-```python
-def reverseString(s):
-    ...
-```
-
-**Calls:**
-
-```python
-reverseString("hello")
-```
-
----
-
-### 2. Multiple Inputs
-
-**Test Case:**
-
-```python
-[[[1, 2], 3], [[-1, 5], 4]]
-```
-
-**Function Signature:**
-
-```python
-def add(a, b):
-    ...
-```
-
-**Calls:**
-
-```python
-add(1, 2)
-add(-1, 5)
-```
-
----
-
-### 3. Array inputs
-
-**Test Case:**
-
-```python
-[[[[1,2,3]], 6]]
-```
-
-**Function Signature:**
-
-```python
-def maxSubArray(arr):
-    ...
-```
-
-**Calls:**
-
-```python
-maxSubArray([1,2,3])
-```
-
-# Frontend (Chat UI)
-
-### Suggested Tech Stack
-
-- React (Vite or Next.js) + TailwindCSS
-- TypeScript
-
-*(Alternatives stacks are allowed.)*
-
-### Features
-
-1. **Chat Interface**
-    - User inputs problem text and test cases.
-    - Sends requests and displays real-time chat and execution logs (LLM trajectories).
-2. **Result Display**
-    - Code block for generated solution.
-    - Table: | Input | Output | Expected | Pass |
-    - Summary section with pass rate and error messages.
-3. **History**
-    - Fetch logs via `/results` endpoint.
-    - Each log shows timestamp, score, and expandable details.
-
-## Evaluation Set:
-
-[eval_set.json](Problem%20SWE%20interview%20task%2029396a81c0db80cbad8eef72e15229b2/eval_set.json)
-
-This set includes problem with test cases. Run your agent of this set and calculate the final score with
-
-- Score = passed / total(100)
-
-## Evaluation Criteria
-
-| Category | Description |
-| --- | --- |
-| Functionality | CLI, API, and frontend work correctly |
-| Eval Score | Calcuated by running your agent on eval set |
-| Code Quality | Readable, modular, and well-documented |
-| Architecture | Agent scuffold and other design decision  |
-
-## Deliverables
-
+## Features
+As per the problem, I was required to have these **Deliverables (functional requirements) + evaluation criteria**
 1. Autonomous agent (problem solver + test runner + scorer)
 2. Eval metric calculated on the evaluation set
 3. API endpoints and data persistence
 4. Frontend chat UI integration
 5. A [README.md](http://README.md) with instruction to use and proper code documentation
+6. Code Quality
+7. Architecture
 
+These are covered in the below points 1-8. The readme is this file you are reading.
+## **1. AI Code Generation** 
+Part of Autonomous agent > problem solver
+**File:** `backend/app/llm.py`
+**Functions:**
 
-#################################
+* `call_llm()` → Calls OpenAI’s API
+* `build_messages()` → Prepares structured prompt
 
-# Solution: Code-Solver Agent
+**Key logic:**
 
-A full-stack AI-powered coding problem solver that uses LLMs to generate Python solutions, executes them against test cases, and provides detailed scoring and results.
+```python
+response = client.chat.completions.create(
+    model=MODEL,
+    messages=messages,
+    temperature=0.0,
+    max_tokens=1200,
+)
+content = response.choices[0].message.content
+```
 
-## Features
+Generates valid Python code from user prompt template + user problem.
 
-- **AI Code Generation**: Uses OpenAI to generate Python solutions from problem descriptions
-- **Automated Testing**: Executes generated code against test cases with timeout controls
-- **Safe Execution**: Sandboxed subprocess execution with basic security checks
-- **JSON Logging**: Stores every run with complete details (problem, code, results, score)
-- **Web UI**: React-based chat interface for submitting problems and viewing results
-- **CLI Interface**: Command-line tool for running the agent
-- **API Endpoints**: FastAPI backend with REST endpoints
-- **Run History**: Browse past runs and their results
+---
+
+## **2. Automated Testing**
+
+**File:** `backend/app/runner.py`
+**Method:** `run_tests()`
+
+**Key logic:**
+
+```python
+ok, stdout, stderr, runtime_ms = self._exec_solution(solution_path, payload, exec_timeout)
+```
+
+Runs multiple test cases, checks equality, calculates score, and captures runtime.
+
+---
+
+## **3. Safe Execution**
+
+**File:** `backend/app/runner.py`
+**Methods:**
+
+* `_validate_code_safety()`
+* `_make_solution_file()`
+* `_exec_solution()`
+
+**Key logic:**
+
+```python
+if pattern.lower() in code_lower:
+    raise RuntimeError(f"Blocked potentially unsafe code pattern: {pattern}")
+```
+
+- Blocks imports like `os`, `subprocess`, `socket`, etc.
+- Runs each generated solution as an isolated subprocess (`tempfile + subprocess.run`)
+- Enforces timeout, catches exceptions safely.
+
+---
+
+## **4. JSON Logging**
+
+**File:** `backend/app/runner.py`
+**Method:** `run_tests()`
+**Output Path:** `/backend/runs/run_<timestamp>.json`
+
+ **Key logic:**
+
+```python
+return {
+  "run_id": str(int(time.time() * 1000)),
+  "timestamp": datetime.utcnow().isoformat() + "Z",
+  "problem_text": problem_text,
+  "solution_code": generated_code,
+  "test_cases": results,
+  "score": score,
+}
+```
+
+- Each run is serialized to JSON and saved under `/runs`.
+
+---
+
+## **5. Web UI (Frontend)**
+
+**Folder:** `frontend/`
+**Files:**
+
+* `App.tsx` — Chat-like interface (problem + test cases input)
+* `api.ts` — Calls backend endpoints
+* `main.tsx` — Renders root React app
+* `index.html` — Static entry
+
+ **Key logic:**
+
+```typescript
+const res = await generateSolution(problem, testCases);
+setResults(res);
+```
+
+- Sends POST to `/generate_solution`
+- Displays generated code, test results, and score in a neat chat interface.
+
+---
+
+##  **6. CLI Interface**
+
+**File:** `backend/app/cli.py`
+**Lines:** ~10–50 (may change later, these were lines when I updated on 22nd Oct)
+
+ **Key logic:**
+
+```python
+python -m app.cli --problem "Reverse a string" --test-cases '[[["abc"], "cba"]]'
+```
+
+- Uses `argparse` to take problem + test cases
+- Calls `solve_problem()` and prints formatted output with score + run_id.
+
+---
+
+##  **7. API Endpoints**
+
+**File:** `backend/app/main.py`
+**Lines:** ~5–30  (may change later, these were lines when I updated on 22nd Oct)
+**Routers:**
+
+* `/generate_solution` → `routes_generate.py`
+* `/results/{id}` → `routes_results.py`
+
+ **Key logic:**
+
+```python
+app.include_router(generate_router)
+app.include_router(results_router)
+```
+
+- FastAPI automatically builds `/openapi.json` and Swagger docs
+- Responses follow schema defined in route handlers.
+
+---
+
+## **8. Run History**
+
+**Folder:** `/backend/runs`
+**File:** `app/utils/file_ops.py` (if implemented) or inline in `runner.py`
+
+ **Key logic:**
+
+```python
+list_runs()  # returns JSON metadata of past runs
+load_run(run_id)  # retrieves full log details
+```
+
+- All runs are timestamped, retrievable through `/results/{id}`
+- Frontend fetches and lists history (like "Previous Runs" section).
+
+---
+
+## ** Architecture **
+
+It's roughly a **3.5-tier system**:
+
+1. **Frontend (React + Tailwind (css))** — user-facing chat
+2. **Backend (FastAPI)** — API + code orchestration
+3. **Executor Layer (Runner + LLM)** — actual agent engine
+3.5. **Storage** - Rightnow it's on local storage via /runs, can be stored to cloud too in future.
+
+### Notes:
+- This currently calls openAI, can be extended to other llms like anthropic.
+- If multi-service tools are needed (e.g., hooking into GitHub, CI pipelines etc) in future MCP (the model context protocol) can be followed.
 
 ## Project Structure
 
@@ -308,9 +230,7 @@ code-solver-agent/
     └── vite.config.ts        # Vite build configuration
 ```
 
-## Enhanced Code Organization
-
-The backend has been restructured for better maintainability and developer experience:
+## Code Organization
 
 ### **Modular Architecture**
 - **`api/`** - FastAPI route handlers organized by functionality
@@ -319,63 +239,7 @@ The backend has been restructured for better maintainability and developer exper
 - **`utils/`** - Utility functions for file operations and persistence
 
 ### **Enhanced Imports**
-The `__init__.py` files have been enhanced to provide convenient imports:
-
-```python
-# Clean, convenient imports
-from app.core import solve_problem, parse_test_cases, run, call_llm
-from app.models import GenerateRequest, GenerateResponse, TestResult, RunSummary
-from app.utils import save_run, list_runs, load_run
-from app.api import generate_router, results_router
-from app import app
-
-# Traditional imports still work (backward compatible)
-from app.core.agent import solve_problem
-from app.models.problem import GenerateRequest
-```
-
-### **Benefits**
-- **Better Organization**: Related code grouped together
-- **Cleaner Imports**: Shorter, more readable import statements
-- **Scalable**: Easy to add new routes, models, or utilities
-- **Professional**: Follows modern Python project structure
-- **Backward Compatible**: Existing code continues to work
-
-### **Developer Experience**
-
-The enhanced structure provides a better developer experience:
-
-```python
-# Import core functionality
-from app.core import solve_problem, parse_test_cases
-
-# Import data models
-from app.models import GenerateRequest, GenerateResponse
-
-# Import utilities
-from app.utils import save_run, load_run
-
-# Import API routers
-from app.api import generate_router, results_router
-
-# Import main app
-from app import app
-```
-
-**Benefits for Developers:**
-- **Intuitive Imports**: Clear, logical import paths
-- **IDE Support**: Better autocomplete and navigation
-- **Modular Development**: Work on specific areas independently
-- **Easy Testing**: Import specific functions for unit tests
-- **Documentation**: Each module has clear purpose and documentation
-
-### **Code Cleanup**
-
-The repository has been cleaned up to remove redundant files:
-- **Removed**: Duplicate CLI files (kept standalone version)
-- **Removed**: Test run data files (regenerated as needed)
-- **Enhanced**: All `__init__.py` files with proper documentation
-- **Organized**: Clear separation of concerns across modules
+The `__init__.py` files have been enhanced to provide convenient imports
 
 ## Setup
 
@@ -385,8 +249,9 @@ The repository has been cleaned up to remove redundant files:
 
 3. **Run the Application**: (See below for how to run on local)
 
+---------------
 # Explaination of what all the files do 
-(this is what I updated on 21st Oct, new files may be added in future)
+(this is what I updated on 22nd Oct, new files may be added in future)
 
 ## Backend Files (`/backend/`)
 
@@ -641,34 +506,6 @@ The repository has been cleaned up to remove redundant files:
 - **Tool**: UV package manager lock file
 
 ---
-
-## System Architecture
-
-### Data Flow
-
-1. **User Input** → Frontend form submission
-2. **API Request** → FastAPI backend receives problem + test cases
-3. **LLM Generation** → OpenAI generates Python solution
-4. **Code Execution** → Safe subprocess execution with timeout
-5. **Result Processing** → Test case validation and scoring
-6. **Storage** → JSON file persistence
-7. **Response** → Results returned to frontend
-8. **Display** → User sees code, results, and score
-
-### Security Features
-
-- **Code Sandboxing**: Import restrictions and pattern blocking
-- **Timeout Controls**: Prevents infinite loops
-- **Input Validation**: JSON schema validation
-- **Error Handling**: Graceful failure modes
-
-### Technologies Used
-
-- **Backend**: FastAPI, OpenAI API, Python subprocess
-- **Frontend**: React, TypeScript, Vite
-- **AI**: OpenAI GPT models
-- **Storage**: JSON file-based persistence
-- **Security**: Static analysis and runtime restrictions
 
 # How to run on local
 
