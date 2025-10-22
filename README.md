@@ -16,6 +16,7 @@ As per the problem, I was required to have these **Deliverables (functional requ
 These are covered in the below points 1-8. The readme is this file you are reading.
 ## **1. AI Code Generation** 
 Part of Autonomous agent > problem solver
+
 **File:** `backend/app/llm.py`
 **Functions:**
 
@@ -33,8 +34,41 @@ response = client.chat.completions.create(
 )
 content = response.choices[0].message.content
 ```
+**Explaination**
+1. `client`: an instance of `OpenAI(api_key=...)`.
 
-Generates valid Python code from user prompt template + user problem.
+2. `.chat.completions.create()`: calls the Chat Completions API endpoint, which powers models like `gpt-4o`, `gpt-4o-mini`, etc. This generates a `response` based on the chat history (messages).
+
+3. Arguments
+- model=	Which model to use (`gpt-4o-mini` here as mentioned in local setup).
+- messages=messages	A list of message dictionaries like:
+[{"role": "system", "content": "...instructions..."}, {"role": "user", "content": "...problem text..."}]
+- temperature=0.0	Controls randomness. 0 → fully deterministic (ideal for code).
+- max_tokens=1200	Caps the length of generated output (here, up to 1200 tokens).
+3. Response Object Structure
+
+OpenAI API returns a structured object like:
+
+    {
+       "id": "chatcmpl-xyz",
+      "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "def solve(...): ..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+      "usage": {...}
+    }
+
+
+So:
+
+`response.choices[0].message.content` extracts the actual generated text (the "def solve(...): ..." which is the code, it's similar to asking chatgpt chat interface, give me python code to add 2 numbers, but here we are doing via code).
+
 
 ---
 
