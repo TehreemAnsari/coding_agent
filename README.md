@@ -64,15 +64,28 @@ The agent should be able to write, read, and execute Python scripts to solve cod
 
 ### 1. CLI Interface
 
-**Example Command:**
+**Example Commands:**
 
 ```bash
-python agent.py \
+# Standalone CLI (recommended)
+python backend/cli.py \
+  --problem "Write a function that returns the sum of two numbers" \
+  --test-cases '[[[1, 2], 3], [[10, 20], 30]]'
+
+# Module CLI (alternative)
+python -m app.cli \
   --problem "Reverse a string" \
   --test-cases '[[["hello"], "olleh"]]'
+
+# With self-reflection
+python backend/cli.py \
+  --problem "Your problem here" \
+  --test-cases '[[[inputs], expected], ...]' \
+  --reflection \
+  --retries 2
 ```
 
-Accept a problem statement (`—problem`) and test cases (`-test-cases` as a JSON string).
+Accept a problem statement (`--problem`) and test cases (`--test-cases` as a JSON string).
 
 ### 2. API Endpoints
 
@@ -258,22 +271,111 @@ A full-stack AI-powered coding problem solver that uses LLMs to generate Python 
 code-solver-agent/
 ├── backend/
 │   ├── app/
-│   │   ├── agent.py          # Main agent orchestration logic
-│   │   ├── llm.py            # OpenAI client wrapper
-│   │   ├── runner.py         # Code execution engine
-│   │   ├── storage.py        # JSON file persistence
-│   │   ├── models.py         # Pydantic models
+│   │   ├── api/              # API routes
+│   │   │   ├── __init__.py
+│   │   │   ├── routes_generate.py  # Solution generation endpoints
+│   │   │   └── routes_results.py  # Results and history endpoints
+│   │   ├── core/             # Core business logic
+│   │   │   ├── __init__.py
+│   │   │   ├── agent.py      # Main agent orchestration logic
+│   │   │   ├── llm.py        # OpenAI client wrapper
+│   │   │   └── runner.py     # Code execution engine
+│   │   ├── models/           # Pydantic data models
+│   │   │   ├── __init__.py
+│   │   │   └── problem.py    # Request/response schemas
+│   │   ├── utils/            # Utility functions
+│   │   │   ├── __init__.py
+│   │   │   └── file_ops.py   # File operations and persistence
+│   │   ├── __init__.py
 │   │   ├── main.py           # FastAPI application
 │   │   └── cli.py            # CLI interface
 │   ├── runs/                 # Stored run results (JSON)
 │   ├── eval_set.json         # Benchmark evaluation set
-│   └── evaluate.py           # Evaluation script
+│   ├── evaluate.py           # Evaluation script
+│   ├── cli.py                # Standalone CLI entry point
+│   └── requirements.txt      # Python dependencies
 └── frontend/
-    └── src/
-        ├── App.tsx           # Main React component
-        ├── api.ts            # API client
-        └── main.tsx          # Entry point
+    ├── src/
+    │   ├── App.tsx           # Main React component
+    │   ├── App.css           # Component styles
+    │   ├── api.ts            # API client
+    │   ├── index.css         # Global styles
+    │   └── main.tsx          # Entry point
+    ├── index.html            # HTML template
+    ├── package.json          # Node.js dependencies
+    ├── tsconfig.json         # TypeScript configuration
+    ├── tsconfig.node.json    # Node TypeScript configuration
+    └── vite.config.ts        # Vite build configuration
 ```
+
+## Enhanced Code Organization
+
+The backend has been restructured for better maintainability and developer experience:
+
+### **Modular Architecture**
+- **`api/`** - FastAPI route handlers organized by functionality
+- **`core/`** - Core business logic (agent, LLM, code execution)
+- **`models/`** - Pydantic data models and schemas
+- **`utils/`** - Utility functions for file operations and persistence
+
+### **Enhanced Imports**
+The `__init__.py` files have been enhanced to provide convenient imports:
+
+```python
+# Clean, convenient imports
+from app.core import solve_problem, parse_test_cases, run, call_llm
+from app.models import GenerateRequest, GenerateResponse, TestResult, RunSummary
+from app.utils import save_run, list_runs, load_run
+from app.api import generate_router, results_router
+from app import app
+
+# Traditional imports still work (backward compatible)
+from app.core.agent import solve_problem
+from app.models.problem import GenerateRequest
+```
+
+### **Benefits**
+- **Better Organization**: Related code grouped together
+- **Cleaner Imports**: Shorter, more readable import statements
+- **Scalable**: Easy to add new routes, models, or utilities
+- **Professional**: Follows modern Python project structure
+- **Backward Compatible**: Existing code continues to work
+
+### **Developer Experience**
+
+The enhanced structure provides a better developer experience:
+
+```python
+# Import core functionality
+from app.core import solve_problem, parse_test_cases
+
+# Import data models
+from app.models import GenerateRequest, GenerateResponse
+
+# Import utilities
+from app.utils import save_run, load_run
+
+# Import API routers
+from app.api import generate_router, results_router
+
+# Import main app
+from app import app
+```
+
+**Benefits for Developers:**
+- **Intuitive Imports**: Clear, logical import paths
+- **IDE Support**: Better autocomplete and navigation
+- **Modular Development**: Work on specific areas independently
+- **Easy Testing**: Import specific functions for unit tests
+- **Documentation**: Each module has clear purpose and documentation
+
+### **Code Cleanup**
+
+The repository has been cleaned up to remove redundant files:
+- **Removed**: Duplicate CLI files (kept standalone version)
+- **Removed**: Test run data files (regenerated as needed)
+- **Enhanced**: All `__init__.py` files with proper documentation
+- **Organized**: Clear separation of concerns across modules
 
 ## Setup
 
@@ -353,8 +455,35 @@ code-solver-agent/
     - `load_run()` - Retrieves specific run data
 - **Storage**: Uses `runs/` directory for JSON files
 
-### `cli.py` - CLI Interface (Module)
+### Backend Files
 
+#### **Core Application Files (`/backend/app/`)**
+
+##### **`main.py` - FastAPI Application**
+- **Purpose**: Main FastAPI server with REST API endpoints
+- **Key Features**:
+  - CORS middleware for frontend communication
+  - `POST /generate_solution` - Generates and tests AI solutions
+  - `GET /results/{run_id}` - Retrieves specific run results
+  - `GET /runs` - Lists recent runs with summaries
+- **Dependencies**: Uses models, agent, and storage modules
+
+##### **`api/` - API Routes**
+- **`routes_generate.py`** - Solution generation endpoints
+- **`routes_results.py`** - Results and history endpoints
+
+##### **`core/` - Core Business Logic**
+- **`agent.py`** - Main orchestration logic for problem solving
+- **`llm.py`** - OpenAI integration and code generation
+- **`runner.py`** - Safe code execution engine
+
+##### **`models/` - Data Models**
+- **`problem.py`** - Pydantic schemas for API requests/responses
+
+##### **`utils/` - Utility Functions**
+- **`file_ops.py`** - File operations and JSON persistence
+
+##### **`cli.py` - CLI Interface (Module)**
 - **Purpose**: Command-line interface for the agent
 - **Features**:
     - Argument parsing for problem and test cases
@@ -363,10 +492,9 @@ code-solver-agent/
     - Detailed output formatting with scores and results
 - **Usage**: `python -m app.cli --problem "..." --test-cases '[...]'`
 
-### Root Backend Files
+#### **Root Backend Files**
 
-### `cli.py` - Standalone CLI Script
-
+##### **`cli.py` - Standalone CLI Script**
 - **Purpose**: Standalone command-line entry point
 - **Features**: Same as module CLI but with direct imports
 - **Usage**: `python backend/cli.py --problem "..." --test-cases '[...]'`
