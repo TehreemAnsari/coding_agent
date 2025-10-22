@@ -5,13 +5,15 @@ This solution is a full-stack AI-powered coding problem solver that uses LLMs to
 
 ## Features
 As per the problem, I was required to have these **Deliverables (functional requirements) + evaluation criteria**
-1. Autonomous agent (problem solver + test runner + scorer)
-2. Eval metric calculated on the evaluation set
-3. API endpoints and data persistence
-4. Frontend chat UI integration
-5. A [README.md](http://README.md) with instruction to use and proper code documentation
-6. Code Quality
-7. Architecture
+| # | Component | Status |
+|---|------------|--------|
+| 1 | Autonomous agent (problem solver + test runner + scorer) | Done see 1 & 2 points below |
+| 2 | Eval metric calculated on the evaluation set | Done see eval_set.json and evaluate.py |
+| 3 | API endpoints and data persistence | Done see point 7. API endpoints and 8. Run history |
+| 4 | Frontend chat UI integration | Done see point 5. Web UI (Frontend) |
+| 5 | A [README.md](README.md) with instruction to use and proper code documentation | Done (this file is the readme) |
+| 6 | Code Quality | Done (generic SDE principles like safety, modularity, class based for extension to other LLMs) |
+| 7 | Architecture | Done see Architecture below |
 
 These are covered in the below points 1-8. The readme is this file you are reading.
 ## **1. AI Code Generation** 
