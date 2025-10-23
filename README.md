@@ -349,7 +349,7 @@ code-solver-agent/
 │   │   │   ├── agent.py      # Main agent orchestration logic
 │   │   │   ├── llm.py        # OpenAI client wrapper
 │   │   │   └── runner.py     # Code execution engine
-│   │   ├── models/           # Pydantic data models
+│   │   ├── models/           # Pydantic data models (pojos)
 │   │   │   ├── __init__.py
 │   │   │   └── problem.py    # Request/response schemas
 │   │   ├── utils/            # Utility functions
@@ -382,7 +382,7 @@ code-solver-agent/
 ### **Modular Architecture**
 - **`api/`** - FastAPI route handlers organized by functionality
 - **`core/`** - Core business logic (agent, LLM, code execution)
-- **`models/`** - Pydantic data models and schemas
+- **`models/`** - Pydantic data models and schemas (pojos)
 - **`utils/`** - Utility functions for file operations and persistence
 
 ### **Enhanced Imports**
@@ -449,9 +449,9 @@ The `__init__.py` files have been enhanced to provide convenient imports
     - **Result Processing**: JSON-based input/output handling
 - **Safety**: Blocks file I/O, subprocess, eval, exec, and other dangerous operations
 
-### `models.py` - Pydantic Data Models
+### `problem.py` - Pydantic Data Models
 
-- **Purpose**: Defines API request/response schemas
+- **Purpose**: Defines API request/response schemas (pojo)
 - **Key Models**:
     - `GenerateRequest` - Input for solution generation
     - `GenerateResponse` - Output with results and score
