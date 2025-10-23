@@ -22,6 +22,8 @@ export interface RunSummary {
   timestamp: string;
   score: number;
   problem_preview: string;
+  solution_code?: string;
+  test_cases?: TestCase[];
 }
 
 export async function generateSolution(problem: string, testCases: any[][]): Promise<GenerateResponse> {
@@ -44,8 +46,8 @@ export async function generateSolution(problem: string, testCases: any[][]): Pro
   return response.json();
 }
 
-export async function getRuns(limit: number = 20): Promise<RunSummary[]> {
-  const response = await fetch(`${API_BASE}/runs?limit=${limit}`);
+export async function getRuns(limit: number = 20, expand: boolean = false): Promise<RunSummary[]> {
+  const response = await fetch(`${API_BASE}/runs?limit=${limit}&expand=${expand}`);
   if (!response.ok) {
     throw new Error('Failed to fetch runs');
   }

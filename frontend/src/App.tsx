@@ -28,9 +28,10 @@ function App() {
     }
   }
 
+  // Load history with expand=true to include code + test cases
   const loadHistory = async () => {
     try {
-      const history = await getRuns()
+      const history = await getRuns(20, true) // limit=20, expand=true
       setRuns(history)
       setShowHistory(true)
     } catch (err: any) {
@@ -146,23 +147,73 @@ function App() {
           )}
         </div>
 
+        {/* Run History Panel */}
         {showHistory && (
           <div className="history-panel">
             <div className="history-header">
               <h2>Run History</h2>
               <button onClick={() => setShowHistory(false)} className="btn-close">×</button>
             </div>
+
             <div className="history-list">
               {runs.length === 0 ? (
                 <p className="empty-message">No runs yet</p>
               ) : (
                 runs.map((run) => (
-                  <div key={run.run_id} className="history-item">
-                    <div className="history-item-header">
-                      <span className="run-score">{(run.score * 100).toFixed(0)}%</span>
-                      <span className="run-time">{new Date(run.timestamp).toLocaleString()}</span>
+                  <div key={run.run_id} className="history-item border rounded p-3 mb-3">
+                    <div className="history-item-header flex justify-between">
+                      <span className="run-score font-bold text-green-700">
+                        {(run.score * 100).toFixed(0)}%
+                      </span>
+                      <span className="run-time text-gray-600">
+                        {new Date(run.timestamp).toLocaleString()}
+                      </span>
                     </div>
-                    <p className="run-problem">{run.problem_preview}</p>
+                    <p className="run-problem mt-1 font-medium">
+                      {run.problem_preview || run.problem_preview}
+                    </p>
+
+                    {/* Expandable details */}
+                    <details className="mt-2 bg-gray-50 rounded p-2">
+                      <summary className="cursor-pointer text-blue-600">
+                        View Details
+                      </summary>
+
+                      {/* Generated Code */}
+                      <div className="code-section mt-2">
+                        <h4 className="font-semibold text-sm">Generated Code:</h4>
+                        <pre className="bg-gray-100 p-2 text-sm overflow-x-auto rounded">
+                          <code>{run.solution_code}</code>
+                        </pre>
+                      </div>
+
+                      {/* Test Cases */}
+                      {run.test_cases && run.test_cases.length > 0 && (
+                        <div className="results-table-container mt-2">
+                          <h4 className="font-semibold text-sm">Test Cases:</h4>
+                          <table className="results-table text-sm w-full border-collapse mt-1">
+                            <thead>
+                              <tr className="bg-gray-200">
+                                <th>Input</th>
+                                <th>Expected</th>
+                                <th>Output</th>
+                                <th>Pass</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {run.test_cases.map((t, idx) => (
+                                <tr key={idx} className={t.passed ? 'bg-green-50' : 'bg-red-50'}>
+                                  <td>{t.input}</td>
+                                  <td>{t.expected_output}</td>
+                                  <td>{t.output}</td>
+                                  <td>{t.passed ? '✅' : '❌'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </details>
                   </div>
                 ))
               )}
